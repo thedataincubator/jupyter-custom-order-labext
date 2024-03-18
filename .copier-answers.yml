@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.2.5
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: rschroll@gmail.com
+author_name: Robert Schroll
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: jupyterlab_custom_order
+project_short_description: Custom ordering of files in the directory views in Jupyter
+python_name: jupyterlab_custom_order
+repository: ''
+test: true
+
