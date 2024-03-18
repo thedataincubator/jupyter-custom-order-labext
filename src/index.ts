@@ -2,13 +2,16 @@
 // Distributed under the terms of the Modified BSD License.
 
 import {
+  ILabShell,
   IRouter,
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
+  JupyterLab
 } from '@jupyterlab/application';
 import {
   FileBrowser,
   FilterFileBrowserModel,
+  IDefaultFileBrowser,
   IFileBrowserFactory
 } from '@jupyterlab/filebrowser';
 import { IDocumentManager } from '@jupyterlab/docmanager';
@@ -24,20 +27,19 @@ import { CustomFileBrowser } from './browser'
  */
 const namespace = 'filebrowser';
 
-const plugin: JupyterFrontEndPlugin<IFileBrowserFactory> = {
-  id: 'jupytercustomsort-labext',
+const factory: JupyterFrontEndPlugin<IFileBrowserFactory> = {
+  id: '@jupyterlab/jupyter_custom_order',
+  description: 'Provides the file browser factory.',
   provides: IFileBrowserFactory,
   requires: [IDocumentManager, ITranslator],
-  optional: [IStateDB, IRouter, JupyterFrontEnd.ITreeResolver],
+  optional: [IStateDB, JupyterLab.IInfo],
   activate: async (
     app: JupyterFrontEnd,
     docManager: IDocumentManager,
     translator: ITranslator,
     state: IStateDB | null,
-    router: IRouter | null,
-    tree: JupyterFrontEnd.ITreeResolver | null
+    info: JupyterLab.IInfo | null
   ): Promise<IFileBrowserFactory> => {
-    const { commands } = app;
     const tracker = new WidgetTracker<FileBrowser>({ namespace });
     const createFileBrowser = (
       id: string,
@@ -49,6 +51,12 @@ const plugin: JupyterFrontEndPlugin<IFileBrowserFactory> = {
         manager: docManager,
         driveName: options.driveName || '',
         refreshInterval: options.refreshInterval,
+        refreshStandby: () => {
+          if (info) {
+            return !info.isConnected || 'when-hidden';
+          }
+          return 'when-hidden';
+        },
         state:
           options.state === null
             ? undefined
@@ -63,15 +71,37 @@ const plugin: JupyterFrontEndPlugin<IFileBrowserFactory> = {
       return widget;
     };
 
+    return { createFileBrowser, tracker };
+  }
+};
+
+const defaultFileBrowser: JupyterFrontEndPlugin<IDefaultFileBrowser> = {
+  id: '@jupyterlab/jupyterlab_custom_order',
+  description: 'Provides the default file browser',
+  provides: IDefaultFileBrowser,
+  requires: [IFileBrowserFactory],
+  optional: [IRouter, JupyterFrontEnd.ITreeResolver, ILabShell],
+  activate: async (
+    app: JupyterFrontEnd,
+    fileBrowserFactory: IFileBrowserFactory,
+    router: IRouter | null,
+    tree: JupyterFrontEnd.ITreeResolver | null,
+    labShell: ILabShell | null
+  ): Promise<IDefaultFileBrowser> => {
+    const { commands } = app;
+
     // Manually restore and load the default file browser.
-    const defaultBrowser = createFileBrowser('filebrowser', {
+    const defaultBrowser = fileBrowserFactory.createFileBrowser('filebrowser', {
       auto: false,
       restore: false
     });
-    void Private.restoreBrowser(defaultBrowser, commands, router, tree);
-    console.log(commands);
-
-    return { createFileBrowser, defaultBrowser, tracker };
+    void Private.restoreBrowser(
+      defaultBrowser,
+      commands,
+      router,
+      tree
+    );
+    return defaultBrowser;
   }
 };
 
@@ -125,4 +155,9 @@ namespace Private {
   }
 }
 
-export default plugin;
+const plugins: JupyterFrontEndPlugin<any>[] = [
+  factory,
+  defaultFileBrowser
+];
+
+export default plugins;

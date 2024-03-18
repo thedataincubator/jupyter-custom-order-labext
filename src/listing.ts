@@ -7,10 +7,6 @@ import {
   Contents,
   ServerConnection
 } from '@jupyterlab/services';
-import {
-  IIterator,
-  toArray
-} from '@lumino/algorithm';
 
 class HttpError extends Error {
   constructor(msg: string, code: number) {
@@ -62,6 +58,14 @@ namespace Private {
       return valA - valB;
     }
 
+    export function file_size(
+      a: Contents.IModel,
+      b: Contents.IModel,
+      _: Array<string>
+    ): number {
+       return (a.size ?? 0) - (b.size ?? 0);
+    }
+
     export function name(
       a: Contents.IModel,
       b: Contents.IModel,
@@ -80,11 +84,11 @@ namespace Private {
   };
 
   export function sort(
-    items: IIterator<Contents.IModel>,
+    items: IterableIterator<Contents.IModel>,
     state: DirListing.ISortState,
     customOrder: Array<string>
   ): Contents.IModel[] {
-    const copy = toArray(items);
+    const copy = Array.from(items);
     const reverse = state.direction === 'descending' ? 1 : -1;
     const cmpFunc = CmpFunctions[state.key];
 
@@ -100,10 +104,11 @@ namespace Private {
 
   export async function customOrderRequest(path: string): Promise<any> {
     const settings = ServerConnection.makeSettings();
-    const url = URLExt.join(settings.baseUrl, 'customorder', path);
+    const url = URLExt.join(settings.baseUrl, "jupyterlab-custom-order", "customorder", path);
     let response = await ServerConnection.makeRequest(url, {}, settings);
-    if (!response.ok)
+    if (!response.ok) {
       throw new HttpError('Failed to load custom order', response.status);
+    }
     return await response.json();
   }
 }
