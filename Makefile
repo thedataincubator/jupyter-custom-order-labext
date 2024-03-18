@@ -12,6 +12,8 @@ $(VENV)/bin/activate:
 .PHONY: build
 build: $(VENV)/bin/activate
 	$(ACTIVATE_VENV) && pip install -e .
+	$(ACTIVATE_VENV) && jupyter labextension develop . --overwrite
+	$(ACTIVATE_VENV) && jupyter server extension enable jupyterlab_custom_order
 	$(ACTIVATE_VENV) && jlpm build
 
 .PHONY: clean
