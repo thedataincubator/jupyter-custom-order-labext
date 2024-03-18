@@ -1,1 +1,8 @@
+jupyterlab_custom_order/labextension/
+jupyterlab_custom_order/_version.py
+lib/
+node_modules/
+__pycache__
+tsconfig.tsbuildinfo
 venv
+.yarn/
