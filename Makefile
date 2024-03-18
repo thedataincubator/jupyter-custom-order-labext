@@ -3,7 +3,7 @@ VENV := venv
 ACTIVATE_VENV := source $(VENV)/bin/activate
 
 .PHONY: all
-all: clean build
+all: clean build launch
 
 $(VENV)/bin/activate:
 	python3 -m venv $(VENV)
@@ -15,6 +15,10 @@ build: $(VENV)/bin/activate
 	$(ACTIVATE_VENV) && jupyter labextension develop . --overwrite
 	$(ACTIVATE_VENV) && jupyter server extension enable jupyterlab_custom_order
 	$(ACTIVATE_VENV) && jlpm build
+
+.PHONY: launch
+launch:
+	$(ACTIVATE_VENV) && jupyter-lab
 
 .PHONY: clean
 clean:
