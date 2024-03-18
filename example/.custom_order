@@ -1,0 +1,7 @@
+{
+  "order": [
+    "b_first.txt",
+    "c_second.txt",
+    "a_last.txt"
+ ]
+}
