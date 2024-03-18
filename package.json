@@ -94,6 +94,16 @@
         "access": "public"
     },
     "jupyterlab": {
+        "discovery": {
+            "server": {
+                "managers": [
+                    "pip"
+                ],
+                "base": {
+                    "name": "jupyterlab_custom_order"
+                }
+            }
+        },
         "extension": true,
         "outputDir": "jupyterlab_custom_order/labextension"
     },
