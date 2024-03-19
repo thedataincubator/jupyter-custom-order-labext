@@ -24,6 +24,7 @@ launch:
 clean:
 	rm -rf \
 		.yarn \
+		dist/ \
 		lib \
 		jupyterlab_custom_order/_version.py \
 		jupyterlab_custom_order/labextension \

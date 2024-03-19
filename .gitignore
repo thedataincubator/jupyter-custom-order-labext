@@ -1,3 +1,4 @@
+dist/
 jupyterlab_custom_order/labextension/
 jupyterlab_custom_order/_version.py
 lib/
