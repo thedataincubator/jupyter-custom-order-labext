@@ -7,9 +7,9 @@
         "jupyterlab",
         "jupyterlab-extension"
     ],
-    "homepage": "",
+    "homepage": "https://github.com/thedataincubator/jupyter-custom-order-labext",
     "bugs": {
-        "url": "/issues"
+        "url": "https://github.com/thedataincubator/jupyter-custom-order-labext/issues"
     },
     "license": "BSD-3-Clause",
     "author": {
