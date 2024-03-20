@@ -1,6 +1,6 @@
 {
     "name": "jupyterlab_custom_order",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Custom ordering of files in the directory views in Jupyter",
     "keywords": [
         "jupyter",
