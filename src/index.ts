@@ -99,7 +99,9 @@ const defaultFileBrowser: JupyterFrontEndPlugin<IDefaultFileBrowser> = {
       defaultBrowser,
       commands,
       router,
-      tree
+      tree,
+      app,
+      labShell
     );
     return defaultBrowser;
   }
@@ -113,7 +115,9 @@ namespace Private {
     browser: FileBrowser,
     commands: CommandRegistry,
     router: IRouter | null,
-    tree: JupyterFrontEnd.ITreeResolver | null
+    tree: JupyterFrontEnd.ITreeResolver | null,
+    app: JupyterFrontEnd,
+    labShell: ILabShell | null
   ): Promise<void> {
     const restoring = 'jp-mod-restoring';
 
@@ -150,6 +154,10 @@ namespace Private {
         await browser.model.refresh();
       }
       browser.removeClass(restoring);
+
+      if (labShell?.isEmpty('main')) {
+        void commands.execute('launcher:create');
+      }
     };
     router.routed.connect(listener);
   }
