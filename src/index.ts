@@ -8,6 +8,7 @@ import {
   JupyterFrontEndPlugin,
   JupyterLab
 } from '@jupyterlab/application';
+import { WidgetTracker } from '@jupyterlab/apputils';
 import {
   FileBrowser,
   FilterFileBrowserModel,
@@ -15,12 +16,20 @@ import {
   IFileBrowserFactory
 } from '@jupyterlab/filebrowser';
 import { IDocumentManager } from '@jupyterlab/docmanager';
-import { ITranslator } from '@jupyterlab/translation';
 import { IStateDB } from '@jupyterlab/statedb';
-import { WidgetTracker } from '@jupyterlab/apputils';
+import { ITranslator, nullTranslator } from '@jupyterlab/translation';
+import { folderIcon } from '@jupyterlab/ui-components';
 import { CommandRegistry } from '@lumino/commands';
 
 import { CustomFileBrowser } from './browser'
+
+/**
+ * The command IDs used by the file browser plugin.
+ */
+namespace CommandIDs {
+  // For main browser only.
+  export const toggleBrowser = 'filebrowser:toggle-main';
+}
 
 /**
  * The default file browser factory provider.
@@ -86,15 +95,44 @@ const defaultFileBrowser: JupyterFrontEndPlugin<IDefaultFileBrowser> = {
     fileBrowserFactory: IFileBrowserFactory,
     router: IRouter | null,
     tree: JupyterFrontEnd.ITreeResolver | null,
-    labShell: ILabShell | null
+    labShell: ILabShell | null,
+    translator: ITranslator | null
   ): Promise<IDefaultFileBrowser> => {
     const { commands } = app;
+    const trans = (translator ?? nullTranslator).load('jupyterlab');
 
     // Manually restore and load the default file browser.
     const defaultBrowser = fileBrowserFactory.createFileBrowser('filebrowser', {
       auto: false,
       restore: false
     });
+
+    // Set attributes when adding the browser to the UI
+    defaultBrowser.node.setAttribute('role', 'region');
+    defaultBrowser.node.setAttribute(
+      'aria-label',
+      trans.__('File Browser Section')
+    );
+    defaultBrowser.node.setAttribute('title', trans.__('File Browser'));
+    defaultBrowser.title.icon = folderIcon;
+
+    // Show the current file browser shortcut in its title.
+    const updateBrowserTitle = () => {
+      const binding = app.commands.keyBindings.find(
+        b => b.command === CommandIDs.toggleBrowser
+      );
+      if (binding) {
+        const ks = binding.keys.map(CommandRegistry.formatKeystroke).join(', ');
+        defaultBrowser.title.caption = trans.__('File Browser (%1)', ks);
+      } else {
+        defaultBrowser.title.caption = trans.__('File Browser');
+      }
+    };
+    updateBrowserTitle();
+    app.commands.keyBindingChanged.connect(() => {
+      updateBrowserTitle();
+    });
+
     void Private.restoreBrowser(
       defaultBrowser,
       commands,
