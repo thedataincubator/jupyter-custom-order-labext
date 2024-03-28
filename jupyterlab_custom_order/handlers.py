@@ -20,6 +20,6 @@ def setup_handlers(web_app, root_dir):
     host_pattern = ".*$"
 
     base_url = web_app.settings["base_url"]
-    route_pattern = url_path_join(base_url, "jupyterlab-custom-order", f"customorder{path_regex}")
+    route_pattern = url_path_join(base_url, f"customorder{path_regex}")
     handlers = [(route_pattern, FileOrderHandler, {"path": root_dir})]
     web_app.add_handlers(host_pattern, handlers)
