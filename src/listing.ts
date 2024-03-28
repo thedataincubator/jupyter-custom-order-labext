@@ -104,7 +104,7 @@ namespace Private {
 
   export async function customOrderRequest(path: string): Promise<any> {
     const settings = ServerConnection.makeSettings();
-    const url = URLExt.join(settings.baseUrl, "jupyterlab-custom-order", "customorder", path);
+    const url = URLExt.join(settings.baseUrl, "customorder", path);
     let response = await ServerConnection.makeRequest(url, {}, settings);
     if (!response.ok) {
       throw new HttpError('Failed to load custom order', response.status);
